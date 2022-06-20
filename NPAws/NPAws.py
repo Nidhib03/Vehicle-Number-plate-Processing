@@ -13,7 +13,7 @@ client = boto3.client('rekognition')
 scopes = ['https://www.googleapis.com/auth/spreadsheets', 'https://www.googleapis.com/auth/drive']
 credentials = ServiceAccountCredentials.from_json_keyfile_name("novice-342709-9a8f64515cff.json", scopes)
 file = gspread.authorize(credentials) 
-sheet = file.open("NPAws").get_worksheet(2)
+sheet = file.open("NPAws").get_worksheet(3)
                 
 threshold=0.5
 GRAPH_NAME = 'model.tflite'
@@ -96,17 +96,17 @@ def getFrame(sec):
     video.set(cv2.CAP_PROP_POS_MSEC,sec*1000) 
     return video.read() 
 sec = 0 
-frameRate = 0.1                            #  10 frames per second
+frameRate = 0.05                         #  20 frames per second
 success = getFrame(sec) 
-
+tlist = []
 while success:     
     print("*********************************************************************************")                           
     sec += frameRate 
     sec = round(sec, 2)   
     ret, frame = getFrame(sec) 
-    seco = (str(sec)).replace('.', '_')
-    #cv2.imwrite('Frames/'+str(seco)+'.jpg',frame)   
     
+    seco = (str(sec)).replace('.', '_')
+    cv2.imwrite('try/Bike_model_test/bike_data/20220530143518/frames/'+str(seco)+'.jpg',frame)   
     if not ret:
         break
    
@@ -136,7 +136,7 @@ while success:
                 
     l = len(sheet.col_values(1)) 
     l += 1
-    tlist = []
+    nm = []
     
     for i in range(len(scores)):
         if ((scores[i] > min_conf_threshold) and (scores[i] <= 1.0)):  
@@ -148,39 +148,50 @@ while success:
             xmax = int(min(imW,(boxes[i][3] * imW)))
             
             vid = cv2.rectangle(frame, (xmin,ymin), (xmax,ymax), (10, 255, 0), 4)
-            cv2.imwrite('Box/'+str(seco)+'.jpg',vid)
+            cv2.imwrite('try/Bike_model_test/bike_data/20220530143518/box/'+str(seco)+'.jpg',vid)
             crop = vid[ymin:ymax, xmin:xmax]
-            path = "Crop/"+str(seco)+'.jpg'
+            path = "try/Bike_model_test/bike_data/20220530143518/crop/"+str(seco)+'.jpg'
             cv2.imwrite(path,crop)  
 
             imageSource=open(path,'rb')
             print(imageSource)
             response=client.detect_text(Image={'Bytes': imageSource.read()})
             textDetections=response['TextDetections']
-            print ('Detected text\n----------')
-            
-            nm = []
+            print ('plate Detected\n----------')
+           
             for text in textDetections:
                 txt = text['DetectedText']
-                print ('Detected text: ' + txt)
-                # t = bool(re.search(r'^[A-Z]',txt))
+                # print ('Detected text: ' + txt)
+                                    
                 r = bool(re.search(r'\d{4}$',txt))
-                if 'J' in txt or r and 'Id' in text: 
+                # t = bool(re.search(r'[A-Z]',txt))
+                t = len(txt)
+                # if t or r and 'Id' in text:
+                if t==4 or r and 'Id' in text:
                     if text['Type']=='LINE':
                         nm.append(txt)
-                        print("]]]]]]]]]]]]]]]] ", nm)
+                        print("text]]]]]]]]]]]]]]]] ", nm)                       
+            npa = []
             if len(nm)==1:
-                tlist = nm
-                print("car Number plate Recognised:  ", tlist)
+                n = nm[0]
+                print("CAR Number plate Recognised:  ", n)
+                npa.append(n)
+                if n not in tlist:              
+                    tlist.append(n)
+                    npa.insert(0, str(date_time_obj + datetime.timedelta(seconds=Full_TIme[0],minutes=Full_TIme[1],hours=Full_TIme[1])))
+                    print("Sheet Entry:::::::::",npa)
+                    sheet.update('A'+str(l),[npa])
+                
             elif len(nm)>=1:
                 n = str(nm[0])+str(nm[1])
-                tlist.append(n)
-                print('bike Number plate Recognised:  ', tlist)
+                print('BIKE Number plate Recognised:  ',n) 
+                npa.append(n)
+                if n not in tlist:
+                    tlist.append(n) 
+                    npa.insert(0, str(date_time_obj + datetime.timedelta(seconds=Full_TIme[0],minutes=Full_TIme[1],hours=Full_TIme[1])))
+                    print("Sheet Entry:::::::::",npa)
+                    sheet.update('A'+str(l),[npa])
             else:
                 print("Detected but Not Recognised............!!!")
                 pass
-                    
-    if len(tlist)>0:
-        tlist.insert(0,str(date_time_obj + datetime.timedelta(seconds=Full_TIme[0],minutes=Full_TIme[1],hours=Full_TIme[1])))
-        print("tlist :::::::::",tlist)
-        sheet.update('A'+str(l),[tlist]) 
+            print("tlist", tlist, '\n',len(tlist))
