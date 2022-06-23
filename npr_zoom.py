@@ -99,7 +99,7 @@ def getFrame(sec):
     cam.set(cv2.CAP_PROP_POS_MSEC,sec*1000) 
     return cam.read() 
 sec = 0 
-frameRate = 0.1                        #  10 frames per second
+frameRate = 0.2                        #  5 frames per second
 success = getFrame(sec) 
 tlist = []
 
