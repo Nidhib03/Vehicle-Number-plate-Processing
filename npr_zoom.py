@@ -72,7 +72,6 @@ if ('StatefulPartitionedCall' in outname): # This is a TF2 model
 else: # This is a TF1 model
     boxes_idx, classes_idx, scores_idx = 0, 1, 2
     
-scale=20
 cam = cv2.VideoCapture(VIDEO_PATH)          
 
 imW = cam.get(cv2.CAP_PROP_FRAME_WIDTH)
@@ -104,6 +103,11 @@ frameRate = 0.1                        #  10 frames per second
 success = getFrame(sec) 
 tlist = []
 
+# scale=20
+
+# croping values
+x,y,h,w = 700, 300, 1000, 5000                                          #700,600,5000,2500 
+
 while success:     
     print("*********************************************************************************")                           
     sec += frameRate 
@@ -113,22 +117,26 @@ while success:
     seco = (str(sec)).replace('.', '_')
     if not ret:
         break
-    
+        
+    '''ZOOM video frame'''
     #prepare the crop for zoom
-    centerX,centerY = int(imH/1),int(imW/1)
-    radiusX,radiusY = int(scale*imH/50),int(scale*imW/50)
+#     centerX,centerY = int(imH/1),int(imW/1)
+#     radiusX,radiusY = int(scale*imH/50),int(scale*imW/50)
 
-    minX,maxX=centerX-radiusX,centerX+radiusX
-    minY,maxY=centerY-radiusY,centerY+radiusY
+#     minX,maxX=centerX-radiusX,centerX+radiusX
+#     minY,maxY=centerY-radiusY,centerY+radiusY
 
-    frame = frame[minX:maxX, minY:maxY]
-    hei = frame.shape[0]
-    wid = frame.shape[1]
+#     zmcrop = frame[minX:maxX, minY:maxY]
+    # OR
+    zmcrop = frame[y:y+h, x:x+w]
+    
+    hei = zmcrop.shape[0]
+    wid = zmcrop.shape[1]
     # print('height & width______________', hei, '&', wid)
-    # print("type & zoom cropped///////////////",type(frame), frame)
-    cv2.imwrite('zoom/20220616173507/Frames/'+str(seco)+'.jpg',frame)   
+    # print("type & zoom cropped///////////////",type(zmcrop), zmcrop)
+    cv2.imwrite('zoom/20220616173507/Frames/'+str(seco)+'.jpg',zmcrop)   
    
-    frame_rgb = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
+    frame_rgb = cv2.cvtColor(zmcrop, cv2.COLOR_BGR2RGB)
     frame_resized = cv2.resize(frame_rgb, (width, height))
     input_data = np.expand_dims(frame_resized, axis=0)
 
@@ -167,7 +175,7 @@ while success:
             xmax = int(min(wid,(boxes[i][3] * wid)))
             # print("y & x min & max ............... ",ymin, ymax, xmin, xmax)
             
-            vid = cv2.rectangle(frame, (xmin,ymin), (xmax,ymax), (10, 255, 0), 4)
+            vid = cv2.rectangle(zmcrop, (xmin,ymin), (xmax,ymax), (10, 255, 0), 4)
             cv2.imwrite('zoom/20220616173507/Box/'+str(seco)+'.jpg',vid)
             
             crop = vid[ymin:ymax, xmin:xmax]            
