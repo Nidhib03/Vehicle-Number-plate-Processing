@@ -5,7 +5,7 @@ const liveView = document.getElementById("liveView");
 const demosSection = document.getElementById("demos");
 const enableWebcamButton = document.getElementById("webcamButton");
 
-const result = document.getElementById('result')
+// const result = document.getElementById('result')
 
 // Check if webcam access is supported.
 function getUserMediaSupported() {
@@ -23,8 +23,8 @@ if (getUserMediaSupported()) {
 
 // Enable the live webcam view and start classification.
 function enableCam(event) {
-  // Only continue if the COCO-SSD has finished loading.
-  console.log("[[[[[[[[[[[[[[0", model)
+  // Only continue if the tflite model has finished loading.
+  console.log("model loading finished!!", model)
   if (!model) {
     return;
   }
@@ -51,7 +51,7 @@ var model = undefined;
 tflite.ObjectDetector.create(
   "model.tflite"
 ).then((loadedModel) => {
-  console.log("=========", loadedModel)
+  console.log("loadedModel=========", loadedModel)
   model = loadedModel;
   // Show demo section now model is ready to use.
   demosSection.classList.remove("invisible");
@@ -121,14 +121,14 @@ function capture(obj) {
       canvas.getContext('2d').drawImage(video, obj.boundingBox.originX, obj.boundingBox.originY, obj.boundingBox.width, obj.boundingBox.height, 0, 0, canvas.width, canvas.height);
       let image_data_url = canvas.toDataURL('image/jpeg');
 
-      Tesseract.recognize(image_data_url, 'eng') 
-        .then(({ data: { text } }) => {
-          console.log("recognised text by tesseract.js", text);
-        result.value = text
-      })
+      // Tesseract.recognize(image_data_url, 'eng') 
+      //   .then(({ data: { text } }) => {
+      //     console.log("recognised text by tesseract.js", text);
+      //   result.value = text
+      // })
 
       // data url of the image
-      console.log("main image",image_data_url);
+      console.log("cropped image[[[[[]]]]]]",image_data_url);
       callAPI(image_data_url)
 };
 
