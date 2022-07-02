@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <title>NPA-poc</title>
+    <meta charset="utf-8">
+//     <meta HTTP-EQUIV="Content-Type" content="text/html; charset=utf-8" />
+//     <script type="text/javascript" src="https://unpkg.com/tesseract.js@v2.0.0-beta.1/dist/tesseract.min.js"></script>
+
+    <!-- Import the webpage's stylesheet -->
+    <link rel="stylesheet" href="style.css">
+  </head>  
+  <body>
+    <h1>Live Vehicle Number plate Detector</h1>
+    
+    <section id="demos" class="invisible">
+      <div id="liveView" class="camView">
+        <button id="webcamButton">Enable Webcam</button>
+        <video id="webcam" autoplay muted width="640" height="480"></video>
+        <canvas id="canvas"></canvas>
+      </div>
+    </section>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+    <script src="model.tflite"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs-tflite/dist/tf-tflite.min.js"></script>
+
+//     <textarea id="result" style="width:640px;height:240px;"></textarea>
+
+    <script src="crop.js"></script>
+  </body>
+</html>  
